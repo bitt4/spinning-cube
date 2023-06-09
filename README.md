@@ -17,3 +17,7 @@ cd spinning-cube
 make
 ./spinning_cube
 ```
+
+## Demo
+
+![demo image](demo.gif)
