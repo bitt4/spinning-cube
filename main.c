@@ -84,9 +84,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    int quit = 0;
-    SDL_Event e;
-
     struct Point3d cube[8] = {
         {-1.0f, -1.0f, -1.0f}, //     .8------7
         { 1.0f, -1.0f, -1.0f}, //   .' |    .'|
@@ -100,6 +97,9 @@ int main(int argc, char* argv[]) {
 
     float angle = 0.0f;
 
+    SDL_Event e;
+
+    int quit = 0;
     while (!quit) {
         while (SDL_PollEvent(&e)) {
             switch (e.type) {
