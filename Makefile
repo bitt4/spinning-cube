@@ -15,9 +15,11 @@ EXE = spinning_cube
 
 ifeq ($(OS),Windows_NT)
 	EXE := $(EXE).exe
+else
+	LIBS += -lm
 endif
 
-all: main.c
+spinning_cube: main.c
 	$(CC) main.c -o $(EXE) $(CFLAGS) $(LIBS) $(FLAGS)
 
 clean:

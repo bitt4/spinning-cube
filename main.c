@@ -15,22 +15,18 @@ struct Point3d {
 };
 
 struct Point3d rotate_y(struct Point3d p, float angle) {
-    struct Point3d rotated = {
+    return (struct Point3d) {
         p.x * cosf(angle) + p.z * sinf(angle),
         p.y,
         p.x * sinf(angle) - p.z * cosf(angle),
     };
-
-    return rotated;
 }
 
 struct Point2d project_to_plane(struct Point3d p0) {
-    struct Point2d p = {
+    return (struct Point2d) {
         p0.x / p0.z,
         p0.y / p0.z,
     };
-
-    return p;
 }
 
 struct Point2d world_to_screen_coords(struct Point2d p,
@@ -133,14 +129,14 @@ int main(int argc, char* argv[]) {
     }
 
     struct Point3d cube[8] = {
-        {-1.0f, -1.0f, -1.0f}, //     .8------7
-        { 1.0f, -1.0f, -1.0f}, //   .' |    .'|
-        { 1.0f, -1.0f,  1.0f}, //  5---+--6'  |
-        {-1.0f, -1.0f,  1.0f}, //  |   |  |   |
-        {-1.0f,  1.0f, -1.0f}, //  |  ,4--+---3
-        { 1.0f,  1.0f, -1.0f}, //  |.'    | .'
-        { 1.0f,  1.0f,  1.0f}, //  1------2'
-        {-1.0f,  1.0f,  1.0f}, //
+        { -1.0f, -1.0f, -1.0f }, //     .8------7
+        {  1.0f, -1.0f, -1.0f }, //   .' |    .'|
+        {  1.0f, -1.0f,  1.0f }, //  5---+--6'  |
+        { -1.0f, -1.0f,  1.0f }, //  |   |  |   |
+        { -1.0f,  1.0f, -1.0f }, //  |  ,4--+---3
+        {  1.0f,  1.0f, -1.0f }, //  |.'    | .'
+        {  1.0f,  1.0f,  1.0f }, //  1------2'
+        { -1.0f,  1.0f,  1.0f }, //
     };
 
     float angle = 0.0f;
@@ -175,6 +171,10 @@ int main(int argc, char* argv[]) {
                             Mix_VolumeMusic(0);
                         }
                     }
+                    break;
+                case SDLK_q:
+                    /* quit */
+                    quit = 1;
                     break;
                 default:
                     break;
