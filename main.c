@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -41,17 +42,58 @@ struct Point2d world_to_screen_coords(struct Point2d p,
     return p;
 }
 
+void cleanup_mixer(Mix_Music* music) {
+    Mix_HaltMusic();
+    Mix_FreeMusic(music);
+    Mix_CloseAudio();
+    Mix_Quit();
+}
+
 int main(int argc, char* argv[]) {
     (void)argc;
     (void)argv;
 
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0) {
         SDL_Log("SDL Initialization error: %s\n", SDL_GetError());
         SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
                                  "SDL_Init",
                                  SDL_GetError(),
                                  0);
         return 1;
+    }
+
+    int audio_initialized = 0;
+    if (Mix_Init(MIX_INIT_OGG) == 0) {
+        SDL_Log("SDL_mixer Initialization error: %s\n", SDL_GetError());
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+                                 "Mix_Init",
+                                 SDL_GetError(),
+                                 0);
+    } else {
+        audio_initialized = 1;
+    }
+
+    const char* music_file = "freebird.ogg";
+    Mix_Music* music = NULL;
+    int music_available = 0;
+
+    /* load music only if audio initialized successfully */
+    if (audio_initialized) {
+        if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 1, 4096) == -1) {
+            SDL_Log("Couldn't open audio: %s\n", SDL_GetError());
+        } else {
+            Mix_VolumeMusic(MIX_MAX_VOLUME);
+            music = Mix_LoadMUS(music_file);
+            if (music == NULL) {
+                SDL_Log("Couldn't load '%s': %s\n", music_file, SDL_GetError());
+            }
+
+            if (Mix_PlayMusic(music, -1) == -1) {
+                SDL_Log("Can't play music: %s\n", SDL_GetError());
+            } else {
+                music_available = 1;
+            }
+        }
     }
 
     const int WINDOW_HEIGHT = 800;
@@ -70,6 +112,9 @@ int main(int argc, char* argv[]) {
                                  "SDL_CreateWindow",
                                  SDL_GetError(),
                                  0);
+        if (audio_initialized) {
+            cleanup_mixer(music);
+        }
         return 1;
     }
 
@@ -81,6 +126,9 @@ int main(int argc, char* argv[]) {
                                  "SDL_CreateRenderer",
                                  SDL_GetError(),
                                  0);
+        if (audio_initialized) {
+            cleanup_mixer(music);
+        }
         return 1;
     }
 
@@ -105,6 +153,32 @@ int main(int argc, char* argv[]) {
             switch (e.type) {
             case SDL_QUIT:
                 quit = 1;
+                break;
+            case SDL_KEYDOWN:
+                switch (e.key.keysym.sym) {
+                case SDLK_p:
+                    /* pause music */
+                    if (music_available) {
+                        if (Mix_PausedMusic()) {
+                            Mix_ResumeMusic();
+                        } else {
+                            Mix_PauseMusic();
+                        }
+                    }
+                    break;
+                case SDLK_m:
+                    /* mute music */
+                    if (music_available) {
+                        if (Mix_VolumeMusic(-1) == 0) {
+                            Mix_VolumeMusic(MIX_MAX_VOLUME);
+                        } else {
+                            Mix_VolumeMusic(0);
+                        }
+                    }
+                    break;
+                default:
+                    break;
+                }
                 break;
             default:
                 break;
@@ -158,6 +232,10 @@ int main(int argc, char* argv[]) {
         const float ROTATION_SPEED = 3.0f;
         float dt = 1.0f / FPS;
         angle += ROTATION_SPEED * dt;
+    }
+
+    if (audio_initialized) {
+        cleanup_mixer(music);
     }
 
     SDL_DestroyRenderer(renderer);

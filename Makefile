@@ -8,7 +8,7 @@ else
 	RM = rm -f
 endif
 
-LIBS += -lSDL2main -lSDL2
+LIBS += -lSDL2main -lSDL2 -lSDL2_mixer
 CFLAGS += -O2 -Wall -Wextra -pedantic -std=c17
 
 EXE = spinning_cube
