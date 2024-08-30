@@ -18,6 +18,11 @@ make
 ./spinning_cube
 ```
 
+## Keybinds
+- `p` - pause music
+- `m` - mute music
+- `q` - quit
+
 ## Demo
 
 ![demo image](demo.gif)
